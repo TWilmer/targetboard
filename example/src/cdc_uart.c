@@ -75,12 +75,18 @@ typedef struct UCOM_DATA {
 	uint8_t inEndpoint;
 	uint8_t outEndpoint;
 
+	 USB_EP_HANDLER_T pInHdlr;
+	 USB_EP_HANDLER_T pOutHdlr;
+
 } UCOM_DATA_T;
 
 /** Virtual Comm port control data instance. */
 static UCOM_DATA_T g_uCOM1;
 
 static UCOM_DATA_T g_uCOM2;
+static UCOM_DATA_T g_uCOM3;
+static UCOM_DATA_T g_uCOM4;
+static UCOM_DATA_T g_uCOM5;
 
 // FIXME: This needs to be selected based on board type.
 //
@@ -126,6 +132,38 @@ static void UCOM_UartInit(int i)
 
 	}
 }
+static ErrorCode_t UCOM_bulk_in_hdlr5(USBD_HANDLE_T hUsb, void *data, uint32_t event)
+{
+
+	return LPC_OK;
+}
+/* UCOM bulk EP_IN and EP_OUT endpoints handler */
+static ErrorCode_t UCOM_bulk_hdlr5(USBD_HANDLE_T hUsb, void *data, uint32_t event)
+{
+	return LPC_OK;
+}
+static ErrorCode_t UCOM_bulk_in_hdlr4(USBD_HANDLE_T hUsb, void *data, uint32_t event)
+{
+
+	return LPC_OK;
+}
+/* UCOM bulk EP_IN and EP_OUT endpoints handler */
+static ErrorCode_t UCOM_bulk_hdlr4(USBD_HANDLE_T hUsb, void *data, uint32_t event)
+{
+	return LPC_OK;
+}
+
+static ErrorCode_t UCOM_bulk_in_hdlr3(USBD_HANDLE_T hUsb, void *data, uint32_t event)
+{
+
+	return LPC_OK;
+}
+/* UCOM bulk EP_IN and EP_OUT endpoints handler */
+static ErrorCode_t UCOM_bulk_hdlr3(USBD_HANDLE_T hUsb, void *data, uint32_t event)
+{
+	return LPC_OK;
+}
+
 static ErrorCode_t UCOM_bulk_in_hdlr2(USBD_HANDLE_T hUsb, void *data, uint32_t event)
 {
 
@@ -383,98 +421,48 @@ void UART0_IRQHandler(void)
 
 }
 
-/* UART to USB com port init routine */
-ErrorCode_t UCOM_init(USBD_HANDLE_T hUsb, USB_CORE_DESCS_T *pDesc, USBD_API_INIT_PARAM_T *pUsbParam)
+ErrorCode_t  initCom(USBD_HANDLE_T hUsb, USB_CORE_DESCS_T *pDesc,USBD_API_INIT_PARAM_T *pUsbParam, UCOM_DATA_T *com, int o)
 {
-	USBD_CDC_INIT_PARAM_T cdc_param1;
 	ErrorCode_t ret = LPC_OK;
-	uint32_t ep_indx;
-	USB_CDC_CTRL_T *pCDC;
-
-	/* Store USB stack handle for future use. */
-	g_uCOM1.hUsb = hUsb;
-	g_uCOM1.selected=LPC_UART0;
-	g_uCOM2.selected=LPC_UART2;
-
-	/* Initi CDC params */
-	memset((void *) &cdc_param1, 0, sizeof(USBD_CDC_INIT_PARAM_T));
-	cdc_param1.mem_base = pUsbParam->mem_base;
-	cdc_param1.mem_size = pUsbParam->mem_size;
-	cdc_param1.cif_intf_desc = (uint8_t *) find_IntfDesc(pDesc->high_speed_desc, CDC_COMMUNICATION_INTERFACE_CLASS,0);
-	cdc_param1.dif_intf_desc = (uint8_t *) find_IntfDesc(pDesc->high_speed_desc, CDC_DATA_INTERFACE_CLASS,0);
-	cdc_param1.SetLineCode = UCOM_SetLineCode1;
-
-	/* Init CDC interface */
-	ret = USBD_API->cdc->init(hUsb, &cdc_param1, &g_uCOM1.hCdc);
-
-	if (ret == LPC_OK) {
-		/* allocate transfer buffers */
-		g_uCOM1.txBuf = (uint8_t *) cdc_param1.mem_base;
-		cdc_param1.mem_base += UCOM_BUF_SZ;
-		cdc_param1.mem_size -= UCOM_BUF_SZ;
-		g_uCOM1.rxBuf = (uint8_t *) cdc_param1.mem_base;
-		cdc_param1.mem_base += UCOM_BUF_SZ;
-		cdc_param1.mem_size -= UCOM_BUF_SZ;
-
-		/* register endpoint interrupt handler */
-		ep_indx = (((USB_CDC1_IN_EP & 0x0F) << 1)+1 );
-		g_uCOM1.inEndpoint=USB_CDC1_IN_EP;
-		ret = USBD_API->core->RegisterEpHandler(hUsb, ep_indx, UCOM_bulk_in_hdlr, &g_uCOM1);
-
-		if (ret == LPC_OK) {
-			/* register endpoint interrupt handler */
-			ep_indx = ((USB_CDC1_OUT_EP & 0x0F) << 1);
-			g_uCOM1.outEndpoint=USB_CDC1_OUT_EP;
-			ret = USBD_API->core->RegisterEpHandler(hUsb, ep_indx, UCOM_bulk_hdlr, &g_uCOM1);
-			/* Init UART port for bridging */
-			//	UCOM_UartInit(0);
-			/* Set the line coding values as per UART Settings */
-			pCDC = (USB_CDC_CTRL_T *) g_uCOM1.hCdc;
-			pCDC->line_coding.dwDTERate = 115200;
-			pCDC->line_coding.bDataBits = 8;
-		}
-
-		/* update mem_base and size variables for cascading calls. */
-		pUsbParam->mem_base = cdc_param1.mem_base;
-		pUsbParam->mem_size = cdc_param1.mem_size;
-	}
-
-
 	USBD_CDC_INIT_PARAM_T cdc_param2;
-	g_uCOM2.hUsb = hUsb;
 
+	com->hUsb = hUsb;
 	/* Initi CDC params */
 	memset((void *) &cdc_param2, 0, sizeof(USBD_CDC_INIT_PARAM_T));
 	cdc_param2.mem_base = pUsbParam->mem_base;
 	cdc_param2.mem_size = pUsbParam->mem_size;
-	cdc_param2.cif_intf_desc = (uint8_t *) find_IntfDesc(pDesc->high_speed_desc, CDC_COMMUNICATION_INTERFACE_CLASS,1);
-	cdc_param2.dif_intf_desc = (uint8_t *) find_IntfDesc(pDesc->high_speed_desc, CDC_DATA_INTERFACE_CLASS,1);
+	cdc_param2.cif_intf_desc = (uint8_t *) find_IntfDesc(pDesc->high_speed_desc, CDC_COMMUNICATION_INTERFACE_CLASS,o);
+	cdc_param2.dif_intf_desc = (uint8_t *) find_IntfDesc(pDesc->high_speed_desc, CDC_DATA_INTERFACE_CLASS,o);
 	cdc_param2.SetLineCode = UCOM_SetLineCode;
 
-	ret = USBD_API->cdc->init(hUsb, &cdc_param2, &g_uCOM2.hCdc);
+	if(o==0)
+	cdc_param2.SetLineCode = UCOM_SetLineCode1;
+
+	ret = USBD_API->cdc->init(hUsb, &cdc_param2, &com->hCdc);
 	if (ret == LPC_OK) {
 		/* allocate transfer buffers */
-		g_uCOM2.txBuf = (uint8_t *) cdc_param2.mem_base;
+		com->txBuf = (uint8_t *) cdc_param2.mem_base;
 		cdc_param2.mem_base += UCOM_BUF_SZ;
 		cdc_param2.mem_size -= UCOM_BUF_SZ;
-		g_uCOM2.rxBuf = (uint8_t *) cdc_param2.mem_base;
+		com->rxBuf = (uint8_t *) cdc_param2.mem_base;
 		cdc_param2.mem_base += UCOM_BUF_SZ;
 		cdc_param2.mem_size -= UCOM_BUF_SZ;
 
 		/* register endpoint interrupt handler */
-		ep_indx = (((USB_CDC2_IN_EP & 0x0F) << 1) +1);
-		g_uCOM2.inEndpoint=USB_CDC2_IN_EP;
-		ret = USBD_API->core->RegisterEpHandler(hUsb, ep_indx, UCOM_bulk_in_hdlr2, &g_uCOM2);
+		uint32_t	ep_indx = (((	com->inEndpoint & 0x0F) << 1) +1);
+
+		ret = USBD_API->core->RegisterEpHandler(hUsb, ep_indx, com->pInHdlr, com);
 
 		if (ret == LPC_OK) {
 			/* register endpoint interrupt handler */
-			ep_indx = ((USB_CDC2_OUT_EP & 0x0F) << 1);
-			g_uCOM2.outEndpoint=USB_CDC2_OUT_EP;
-			ret = USBD_API->core->RegisterEpHandler(hUsb, ep_indx, UCOM_bulk_hdlr2, &g_uCOM2);
+
+			ep_indx = ((	com->outEndpoint & 0x0F) << 1);
+
+			ret = USBD_API->core->RegisterEpHandler(hUsb, ep_indx,  com->pOutHdlr, com);
 			/* Init UART port for bridging */
 			//	UCOM_UartInit(1);
 			/* Set the line coding values as per UART Settings */
-			pCDC = (USB_CDC_CTRL_T *) g_uCOM2.hCdc;
+			USB_CDC_CTRL_T * pCDC = (USB_CDC_CTRL_T *) com->hCdc;
 			pCDC->line_coding.dwDTERate = 115200;
 			pCDC->line_coding.bDataBits = 8;
 		}
@@ -483,7 +471,62 @@ ErrorCode_t UCOM_init(USBD_HANDLE_T hUsb, USB_CORE_DESCS_T *pDesc, USBD_API_INIT
 		pUsbParam->mem_base = cdc_param2.mem_base;
 		pUsbParam->mem_size = cdc_param2.mem_size;
 	}
+	return ret;
+}
+/* UART to USB com port init routine */
+ErrorCode_t UCOM_init(USBD_HANDLE_T hUsb, USB_CORE_DESCS_T *pDesc, USBD_API_INIT_PARAM_T *pUsbParam)
+{
 
+	ErrorCode_t ret = LPC_OK;
+
+
+
+	/* Store USB stack handle for future use. */
+
+	g_uCOM1.selected=LPC_UART0;
+	g_uCOM2.selected=LPC_UART2;
+	g_uCOM3.selected=0;
+	g_uCOM4.selected=0;
+	g_uCOM5.selected=0;
+
+	g_uCOM1.inEndpoint=USB_CDC1_IN_EP;
+	g_uCOM1.outEndpoint=USB_CDC1_OUT_EP;
+	g_uCOM1.pInHdlr = &UCOM_bulk_in_hdlr;
+	g_uCOM1.pOutHdlr = &UCOM_bulk_hdlr;
+	if (ret == LPC_OK) {
+		ret= initCom(hUsb, pDesc, pUsbParam, &g_uCOM1, 0);
+	}
+
+
+	g_uCOM2.inEndpoint=USB_CDC2_IN_EP;
+	g_uCOM2.outEndpoint=USB_CDC2_OUT_EP;
+	g_uCOM2.pInHdlr = &UCOM_bulk_in_hdlr2;
+	g_uCOM2.pOutHdlr = &UCOM_bulk_hdlr2;
+	if (ret == LPC_OK) {
+		ret=initCom(hUsb, pDesc, pUsbParam, &g_uCOM2, 1);
+	}
+
+	g_uCOM3.inEndpoint=USB_CDC3_IN_EP;
+	g_uCOM3.outEndpoint=USB_CDC3_OUT_EP;
+	g_uCOM3.pInHdlr = &UCOM_bulk_in_hdlr3;
+	g_uCOM3.pOutHdlr = &UCOM_bulk_hdlr3;
+	if (ret == LPC_OK) {
+		ret= initCom(hUsb, pDesc, pUsbParam, &g_uCOM3, 2);
+	}
+	g_uCOM4.inEndpoint=USB_CDC4_IN_EP;
+	g_uCOM4.outEndpoint=USB_CDC4_OUT_EP;
+	g_uCOM4.pInHdlr = &UCOM_bulk_in_hdlr4;
+	g_uCOM4.pOutHdlr = &UCOM_bulk_hdlr4;
+	if (ret == LPC_OK) {
+		ret=initCom(hUsb, pDesc, pUsbParam, &g_uCOM4, 3);
+	}
+	g_uCOM5.inEndpoint=USB_CDC5_IN_EP;
+	g_uCOM5.outEndpoint=USB_CDC5_OUT_EP;
+	g_uCOM5.pInHdlr = &UCOM_bulk_in_hdlr5;
+	g_uCOM5.pOutHdlr = &UCOM_bulk_hdlr5;
+	if (ret == LPC_OK) {
+		ret=initCom(hUsb, pDesc, pUsbParam, &g_uCOM5, 4);
+	}
 
 	return ret;
 }

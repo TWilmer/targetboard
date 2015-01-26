@@ -149,7 +149,7 @@ int main(void)
 	/* initialize call back structures */
 	memset((void *) &usb_param, 0, sizeof(USBD_API_INIT_PARAM_T));
 	usb_param.usb_reg_base = LPC_USB_BASE + 0x200;
-	usb_param.max_num_ep =5;
+	usb_param.max_num_ep =16;
 	usb_param.mem_base = USB_STACK_MEM_BASE;
 	usb_param.mem_size = USB_STACK_MEM_SIZE;
 
