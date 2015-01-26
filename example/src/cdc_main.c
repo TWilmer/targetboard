@@ -191,6 +191,7 @@ int main(void)
 					rdCnt = vcom_bread(&g_rxBuff[0], 256);
 
 					if (rdCnt) {
+
 						vcom_write(&g_rxBuff[0], rdCnt);
 					}
 				}

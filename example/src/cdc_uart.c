@@ -161,6 +161,15 @@ static ErrorCode_t UCOM_bulk_in_hdlr3(USBD_HANDLE_T hUsb, void *data, uint32_t e
 /* UCOM bulk EP_IN and EP_OUT endpoints handler */
 static ErrorCode_t UCOM_bulk_hdlr3(USBD_HANDLE_T hUsb, void *data, uint32_t event)
 {
+	UCOM_DATA_T *pUcom = (UCOM_DATA_T *) data;
+	switch(event)
+	{
+	case USB_EVT_OUT:
+		pUcom->rx_count = USBD_API->hw->ReadEP(hUsb, pUcom->outEndpoint, pUcom->rxBuf);
+		//pUcom->rx_count = USBD_API->hw->ReadEP(hUsb, pUcom->outEndpoint, pUcom->rxBuf);
+	Board_LED_Toggle(0);
+	break;
+	}
 	return LPC_OK;
 }
 
