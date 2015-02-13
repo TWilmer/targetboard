@@ -602,11 +602,11 @@ ALIGNED(4) const uint8_t USB_StringDescriptor[] = {
 		/* Index 0x04: Interface 1, Alternate Setting 0 */
 		( 5 * 2 + 2),						/* bLength (4 Char + Type + lenght) */
 		USB_STRING_DESCRIPTOR_TYPE,			/* bDescriptorType */
-		'V', 0,
+		'S', 0,
+		'W', 0,
+		'I', 0,
+		'T', 0,
 		'C', 0,
-		'O', 0,
-		'M', 0,
-		'1', 0,
 		/* Index 0x05: Interface 1, Alternate Setting 0 */
 		( 5 * 2 + 2),						/* bLength (4 Char + Type + lenght) */
 		USB_STRING_DESCRIPTOR_TYPE,			/* bDescriptorType */
@@ -614,7 +614,7 @@ ALIGNED(4) const uint8_t USB_StringDescriptor[] = {
 		'C', 0,
 		'O', 0,
 		'M', 0,
-		'2', 0,
+		'0', 0,
 
 		/* Index 0x06: Interface 1, Alternate Setting 0 */
 		( 5 * 2 + 2),						/* bLength (4 Char + Type + lenght) */
@@ -624,7 +624,7 @@ ALIGNED(4) const uint8_t USB_StringDescriptor[] = {
 		'C', 0,
 		'O', 0,
 		'M', 0,
-		'3', 0,
+		'1', 0,
 
 		/* Index 0x07: Interface 1, Alternate Setting 0 */
 		( 5 * 2 + 2),						/* bLength (4 Char + Type + lenght) */

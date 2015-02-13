@@ -143,6 +143,15 @@ int main(void)
 	    Chip_IOCON_PinMux(LPC_IOCON, 0, 3,  IOCON_MODE_INACT, IOCON_FUNC1);
 	    Chip_GPIO_SetPinDIRInput(LPC_GPIO,0,3);//RXD0
 
+
+
+		Chip_UART_SetBaud(LPC_UART0, 115200);
+
+		Chip_UART_ConfigData(LPC_UART0, UART_LCR_WLEN8 | UART_LCR_SBS_1BIT | UART_LCR_PARITY_DIS);
+		Chip_UART_TXEnable(LPC_UART0);
+
+
+
 	/* enable clocks and pinmux */
 	usb_pin_clk_init();
 

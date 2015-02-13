@@ -72,6 +72,7 @@ extern "C"
 #define USB_CDC1_IN_EP           0x81
 #define USB_CDC1_OUT_EP          0x01
 #define USB_CDC1_INT_EP          0x82
+
 #define USB_CDC2_IN_EP           0x83
 #define USB_CDC2_OUT_EP          0x03
 #define USB_CDC2_INT_EP          0x84
