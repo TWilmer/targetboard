@@ -62,32 +62,30 @@ extern "C"
 #define USB_CDC1_DIF_NUM         1
 #define USB_CDC2_CIF_NUM         2
 #define USB_CDC2_DIF_NUM         3
-#define USB_CDC3_CIF_NUM         4
-#define USB_CDC3_DIF_NUM         5
-#define USB_CDC4_CIF_NUM         6
-#define USB_CDC4_DIF_NUM         7
-#define USB_CDC5_CIF_NUM         8
-#define USB_CDC5_DIF_NUM         9
+#define USB_CDC3_DIF_NUM         4
+#define USB_CDC4_DIF_NUM         5
+#define USB_CDC5_DIF_NUM         6
 
-#define USB_CDC1_IN_EP           0x81
-#define USB_CDC1_OUT_EP          0x01
-#define USB_CDC1_INT_EP          0x82
+#define USB_CDC1_IN_EP           0x82
+#define USB_CDC1_OUT_EP          0x02
+#define USB_CDC1_INT_EP          0x81
 
-#define USB_CDC2_IN_EP           0x83
-#define USB_CDC2_OUT_EP          0x03
 #define USB_CDC2_INT_EP          0x84
+#define USB_CDC2_IN_EP           0x85
+#define USB_CDC2_OUT_EP          0x05
 
-#define USB_CDC3_IN_EP           0x85
-#define USB_CDC3_OUT_EP          0x05
-#define USB_CDC3_INT_EP          0x86
 
-#define USB_CDC4_IN_EP           0x87
-#define USB_CDC4_OUT_EP          0x07
-#define USB_CDC4_INT_EP          0x88
+#define USB_CDC3_IN_EP           0x88
+#define USB_CDC3_OUT_EP          0x08
 
-#define USB_CDC5_IN_EP           0x89
-#define USB_CDC5_OUT_EP          0x09
-#define USB_CDC5_INT_EP          0x8A
+
+#define USB_CDC4_IN_EP           0x8B
+#define USB_CDC4_OUT_EP          0x0B
+
+
+#define USB_CDC5_IN_EP           0x8E
+#define USB_CDC5_OUT_EP          0x0E
+
 
 
 
