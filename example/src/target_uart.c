@@ -32,6 +32,7 @@
 #include "board.h"
 #include "app_usbd_cfg.h"
 #include "cdc_uart.h"
+#include "target_can.h"
 
 /*****************************************************************************
  * Private types/enumerations/variables
@@ -72,6 +73,7 @@ typedef struct UCOM_DATA {
 	uint16_t rx_rd_count;
 
 	LPC_USART_T *selected;
+	TARGET_CAN_T *can;
 	uint8_t inEndpoint;
 	uint8_t outEndpoint;
 
@@ -434,6 +436,10 @@ static ErrorCode_t UCOM_bulk_hdlrOutGeneric(USBD_HANDLE_T hUsb, void *data, uint
 
 }
 
+
+
+
+
  ErrorCode_t customClassHandler(USBD_HANDLE_T hUsb, void* data, uint32_t event)
  {
 	 UCOM_DATA_T *com=data;
@@ -652,6 +658,11 @@ ErrorCode_t UCOM_init(USBD_HANDLE_T hUsb, USB_CORE_DESCS_T *pDesc, USBD_API_INIT
 	g_uCOM4.selected=0;
 	g_uCOM5.selected=0;
 
+	g_uCOM1.can=0;
+	g_uCOM2.can=0;
+	g_uCOM3.can=0;
+	g_uCOM4.can=&gCAN1;
+    g_uCOM5.can=&gCAN2;
 
 
 	g_uCOM1.inEndpoint=USB_CDC1_IN_EP;
