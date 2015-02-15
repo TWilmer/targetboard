@@ -540,7 +540,7 @@ ErrorCode_t  specialCase(USBD_HANDLE_T hUsb, USB_CORE_DESCS_T *pDesc,USBD_API_IN
 ErrorCode_t  initCom(USBD_HANDLE_T hUsb, USB_CORE_DESCS_T *pDesc,USBD_API_INIT_PARAM_T *pUsbParam, UCOM_DATA_T *com, int o)
 {
 
-	if(o>=1)
+	if(o>=3)
 	{
 		return specialCase(hUsb,pDesc , pUsbParam, com, o);
 	}
