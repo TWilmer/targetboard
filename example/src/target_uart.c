@@ -33,7 +33,7 @@
 #include "app_usbd_cfg.h"
 #include "cdc_uart.h"
 #include "target_can.h"
-
+#include "twican.h"
 /*****************************************************************************
  * Private types/enumerations/variables
  ****************************************************************************/
@@ -77,9 +77,9 @@ typedef struct UCOM_DATA {
 	uint8_t inEndpoint;
 	uint8_t outEndpoint;
 
-	 USB_EP_HANDLER_T pInHdlr;
-	 USB_EP_HANDLER_T pOutHdlr;
-	 uint8_t port;
+	USB_EP_HANDLER_T pInHdlr;
+	USB_EP_HANDLER_T pOutHdlr;
+	uint8_t port;
 
 } UCOM_DATA_T;
 
@@ -109,41 +109,41 @@ static void UCOM_UartInit(int i)
 
 	/* Pin-muxing done in board init. */
 	//Init_UART_PinMux();
-if(i==1)
-{
-	Chip_UART_Init(LPC_UART0);
-	Chip_UART_SetBaud(LPC_UART0, 115200);
-	Chip_UART_ConfigData(LPC_UART0, (UART_LCR_WLEN8 | UART_LCR_SBS_1BIT));
-	Chip_UART_SetupFIFOS(LPC_UART0, (UART_FCR_FIFO_EN | UART_FCR_TRG_LEV2));
-	Chip_UART_TXEnable(LPC_UART0);
+	if(i==1)
+	{
+		Chip_UART_Init(LPC_UART0);
+		Chip_UART_SetBaud(LPC_UART0, 115200);
+		Chip_UART_ConfigData(LPC_UART0, (UART_LCR_WLEN8 | UART_LCR_SBS_1BIT));
+		Chip_UART_SetupFIFOS(LPC_UART0, (UART_FCR_FIFO_EN | UART_FCR_TRG_LEV2));
+		Chip_UART_TXEnable(LPC_UART0);
 
-	/* Enable receive data and line status interrupt */
-	Chip_UART_IntEnable(LPC_UART0, (UART_IER_RBRINT | UART_IER_RLSINT));
+		/* Enable receive data and line status interrupt */
+		Chip_UART_IntEnable(LPC_UART0, (UART_IER_RBRINT | UART_IER_RLSINT));
 
-	/* Enable Interrupt for UART channel */
+		/* Enable Interrupt for UART channel */
 		/* Priority = 1 */
 		NVIC_SetPriority(UART0_IRQn, 1);
 		/* Enable Interrupt for UART channel */
 
-}
+	}
 
-if(i==2)
-{
-	Chip_UART_Init(LPC_UART2);
-	Chip_UART_SetBaud(LPC_UART2, 115200);
-	Chip_UART_ConfigData(LPC_UART2, (UART_LCR_WLEN8 | UART_LCR_SBS_1BIT));
-	Chip_UART_SetupFIFOS(LPC_UART2, (UART_FCR_FIFO_EN | UART_FCR_TRG_LEV2));
-	Chip_UART_TXEnable(LPC_UART2);
+	if(i==2)
+	{
+		Chip_UART_Init(LPC_UART2);
+		Chip_UART_SetBaud(LPC_UART2, 115200);
+		Chip_UART_ConfigData(LPC_UART2, (UART_LCR_WLEN8 | UART_LCR_SBS_1BIT));
+		Chip_UART_SetupFIFOS(LPC_UART2, (UART_FCR_FIFO_EN | UART_FCR_TRG_LEV2));
+		Chip_UART_TXEnable(LPC_UART2);
 
-	/* Enable receive data and line status interrupt */
-	Chip_UART_IntEnable(LPC_UART2, (UART_IER_RBRINT | UART_IER_RLSINT));
+		/* Enable receive data and line status interrupt */
+		Chip_UART_IntEnable(LPC_UART2, (UART_IER_RBRINT | UART_IER_RLSINT));
 
-	/* Enable Interrupt for UART channel */
+		/* Enable Interrupt for UART channel */
 		/* Priority = 1 */
 		NVIC_SetPriority(UART2_IRQn, 1);
 		/* Enable Interrupt for UART channel */
 
-}
+	}
 
 }
 
@@ -169,7 +169,7 @@ static ErrorCode_t UCOM_bulk_hdlr(USBD_HANDLE_T hUsb, void *data, uint32_t event
 
 	UCOM_DATA_T *pUcom = (UCOM_DATA_T *) data;
 	if(pUcom->tx_flags==0)
-	  pUcom->tx_flags= VCOM_TX_CONNECTED;
+		pUcom->tx_flags= VCOM_TX_CONNECTED;
 	switch (event) {
 	case USB_EVT_OUT:
 		pUcom->rx_count = USBD_API->hw->ReadEP(hUsb, pUcom->outEndpoint, pUcom->rxBuf);
@@ -219,10 +219,10 @@ static ErrorCode_t UCOM_SetLineCode2(USBD_HANDLE_T hCDC, CDC_LINE_CODING *line_c
 static ErrorCode_t UCOM_SetLineCode(USBD_HANDLE_T hCDC, CDC_LINE_CODING *line_coding, UCOM_DATA_T *pUcom )
 {
 	uint32_t config_data = 0;
-    pUcom->tx_flags= VCOM_TX_CONNECTED;
+	pUcom->tx_flags= VCOM_TX_CONNECTED;
 
-    if(pUcom->selected==0)
-	return LPC_OK;
+	if(pUcom->selected==0)
+		return LPC_OK;
 
 
 
@@ -327,7 +327,7 @@ void UART2_IRQHandler(void)
 {
 	UART_IRQHandler(&g_uCOM3);
 }
-
+#define REQ_TYPE( direction, type, recipient )	((direction<<7)|(type<<5)|recipient)
 
 void UART_IRQHandler(UCOM_DATA_T *pUcom )
 {
@@ -370,6 +370,73 @@ void UART_IRQHandler(UCOM_DATA_T *pUcom )
 
 }
 char outbuffer[100];
+uint8_t cmdBuffer[100];
+uint8_t value=0;
+uint8_t numEvtSetLineCoding;
+uint8_t numEvtOut;
+static ErrorCode_t UCOM_ControlHandler(USBD_HANDLE_T hUsb, void *data, uint32_t event)
+{
+
+	USB_CORE_CTRL_T* pCtrl = (USB_CORE_CTRL_T*)hUsb;
+	if(pCtrl->SetupPacket.bmRequestType.B==128) // standard
+		return ERR_USBD_UNHANDLED;
+
+	if(value<100)
+	{
+		cmdBuffer[value]=pCtrl->SetupPacket.bmRequestType.B;
+		value++;
+	}
+
+	if (pCtrl->SetupPacket.bmRequestType.BM.Type == REQUEST_VENDOR) {
+		switch (event) {
+		case USB_EVT_SETUP:
+
+			// (pCtrl->SetupPacket.bmRequestType.BM.Recipient == REQUEST_TO_INTERFACE) &&
+			if (
+					((pCtrl->SetupPacket.wIndex.WB.L == 4)  ||       /* IF number correct? */
+							(pCtrl->SetupPacket.wIndex.WB.L == 5)) ) {
+				value++;
+				switch (pCtrl->SetupPacket.bRequest) {
+				case TWICAN_GET_VERSION:
+				{
+
+					numEvtOut++;
+					pCtrl->EP0Buf[0]=42;
+					pCtrl->EP0Data.Count=5;
+					pCtrl->EP0Data.pData = pCtrl->EP0Buf;                     /* point to data to be sent */
+					USBD_API->core->DataInStage(pCtrl);                       /* send requested data */
+					return LPC_OK;
+				}
+				break;
+				case TWICAN_SET_BAUDRATE:
+					//                case AUDIO_REQUEST_SET_MIN:
+					//                case AUDIO_REQUEST_SET_MAX:
+					//                case AUDIO_REQUEST_SET_RES:
+					pCtrl->EP0Data.pData = pCtrl->EP0Buf;                              /* data to be received */
+
+					return LPC_OK;
+					break;
+				}
+			}
+		case USB_EVT_OUT:
+			if ((pCtrl->SetupPacket.bmRequestType.BM.Recipient == REQUEST_TO_INTERFACE) &&
+					((pCtrl->SetupPacket.wIndex.WB.L == 1)  ||       /* IF number correct? */
+							(pCtrl->SetupPacket.wIndex.WB.L == 1)) ) {
+				switch (pCtrl->SetupPacket.bRequest) {
+				case TWICAN_SET_BAUDRATE: //AUDIO_REQUEST_SET_CUR:
+
+					USBD_API->core->StatusInStage(pCtrl);                         /* send Acknowledge */
+					return LPC_OK;
+					break;
+				}
+			}
+
+		}
+
+	}
+	return ERR_USBD_UNHANDLED;
+}
+
 static ErrorCode_t UCOM_bulk_hdlrInGeneric(USBD_HANDLE_T hUsb, void *data, uint32_t event)
 {
 	UCOM_DATA_T *pUcom = (UCOM_DATA_T *) data;
@@ -378,23 +445,23 @@ static ErrorCode_t UCOM_bulk_hdlrInGeneric(USBD_HANDLE_T hUsb, void *data, uint3
 	switch (event) {
 	case USB_EVT_IN:
 		/* check if UART had more data to send */
-			if (pUcom->rxBuf_uartIndex < pUcom->rxBuf_usbIndex) {
-				count = UCOM_BUF_SZ - pUcom->rxBuf_usbIndex;
-			}
-			else {
-				count = pUcom->rxBuf_uartIndex - pUcom->rxBuf_usbIndex;
-			}
-			if (count) {
-				pUcom->usbTxBusy = 1;
-				count = USBD_API->hw->WriteEP(pUcom->hUsb, pUcom->inEndpoint, &pUcom->rxBuf[pUcom->rxBuf_usbIndex], count);
-				pUcom->rxBuf_usbIndex = (pUcom->rxBuf_usbIndex + count) & (UCOM_BUF_SZ - 1);
-			}
-			else {
-				pUcom->usbTxBusy = 0;
-			}
-			break;
+		if (pUcom->rxBuf_uartIndex < pUcom->rxBuf_usbIndex) {
+			count = UCOM_BUF_SZ - pUcom->rxBuf_usbIndex;
+		}
+		else {
+			count = pUcom->rxBuf_uartIndex - pUcom->rxBuf_usbIndex;
+		}
+		if (count) {
+			pUcom->usbTxBusy = 1;
+			count = USBD_API->hw->WriteEP(pUcom->hUsb, pUcom->inEndpoint, &pUcom->rxBuf[pUcom->rxBuf_usbIndex], count);
+			pUcom->rxBuf_usbIndex = (pUcom->rxBuf_usbIndex + count) & (UCOM_BUF_SZ - 1);
+		}
+		else {
+			pUcom->usbTxBusy = 0;
+		}
+		break;
 
-			return LPC_OK;
+		return LPC_OK;
 		break;
 	}
 	return ERR_USBD_UNHANDLED;
@@ -440,51 +507,51 @@ static ErrorCode_t UCOM_bulk_hdlrOutGeneric(USBD_HANDLE_T hUsb, void *data, uint
 
 
 
- ErrorCode_t customClassHandler(USBD_HANDLE_T hUsb, void* data, uint32_t event)
- {
-	 UCOM_DATA_T *com=data;
-	 switch(event)
-	 {
-	 case USB_EVT_SETUP:
-		 break;
-	 case USB_EVT_OUT:         /**< 2   OUT Packet received */
-		 break;
-	 case USB_EVT_IN:          /**< 3    IN Packet sent */
-		 break;
-	 case USB_EVT_OUT_NAK:     /**< 4   OUT Packet - Not Acknowledged */
-		 break;
-	 case USB_EVT_IN_NAK:      /**< 5    IN Packet - Not Acknowledged */
-		 break;
-	 case USB_EVT_OUT_STALL:   /**< 6   OUT Packet - Stalled */
-		 break;
-	 case USB_EVT_IN_STALL:    /**< 7    IN Packet - Stalled */
-		 break;
-	 case USB_EVT_OUT_DMA_EOT: /**< 8   DMA OUT EP - End of Transfer */
-		 break;
-	 case USB_EVT_IN_DMA_EOT:  /**< 9   DMA  IN EP - End of Transfer */
-		 break;
-	 case USB_EVT_OUT_DMA_NDR: /**< 10  DMA OUT EP - New Descriptor Request */
-		 break;
-	 case USB_EVT_IN_DMA_NDR:  /**< 11  DMA  IN EP - New Descriptor Request */
-		 break;
-	 case USB_EVT_OUT_DMA_ERR: /**< 12  DMA OUT EP - Error */
-		 break;
-	 case USB_EVT_IN_DMA_ERR:  /**< 13  DMA  IN EP - Error */
-		 break;
-	 case USB_EVT_RESET:       /**< 14  Reset event recieved */
-		 USBD_API->hw->ResetEP(hUsb,com->inEndpoint);
-		 USBD_API->hw->ResetEP(hUsb,com->outEndpoint);
-		 break;
-	 case USB_EVT_SOF:         /**< 15  Start of Frame event */
-		 break;
-	 case USB_EVT_DEV_STATE:   /**< 16  Device status events */
-		 break;
-	 case USB_EVT_DEV_ERROR:   /**< 17  Device error events */
-		 break;
-	 }
-	 return ERR_USBD_UNHANDLED;
+ErrorCode_t customClassHandler(USBD_HANDLE_T hUsb, void* data, uint32_t event)
+{
+	UCOM_DATA_T *com=data;
+	switch(event)
+	{
+	case USB_EVT_SETUP:
+		break;
+	case USB_EVT_OUT:         /**< 2   OUT Packet received */
+		break;
+	case USB_EVT_IN:          /**< 3    IN Packet sent */
+		break;
+	case USB_EVT_OUT_NAK:     /**< 4   OUT Packet - Not Acknowledged */
+		break;
+	case USB_EVT_IN_NAK:      /**< 5    IN Packet - Not Acknowledged */
+		break;
+	case USB_EVT_OUT_STALL:   /**< 6   OUT Packet - Stalled */
+		break;
+	case USB_EVT_IN_STALL:    /**< 7    IN Packet - Stalled */
+		break;
+	case USB_EVT_OUT_DMA_EOT: /**< 8   DMA OUT EP - End of Transfer */
+		break;
+	case USB_EVT_IN_DMA_EOT:  /**< 9   DMA  IN EP - End of Transfer */
+		break;
+	case USB_EVT_OUT_DMA_NDR: /**< 10  DMA OUT EP - New Descriptor Request */
+		break;
+	case USB_EVT_IN_DMA_NDR:  /**< 11  DMA  IN EP - New Descriptor Request */
+		break;
+	case USB_EVT_OUT_DMA_ERR: /**< 12  DMA OUT EP - Error */
+		break;
+	case USB_EVT_IN_DMA_ERR:  /**< 13  DMA  IN EP - Error */
+		break;
+	case USB_EVT_RESET:       /**< 14  Reset event recieved */
+		USBD_API->hw->ResetEP(hUsb,com->inEndpoint);
+		USBD_API->hw->ResetEP(hUsb,com->outEndpoint);
+		break;
+	case USB_EVT_SOF:         /**< 15  Start of Frame event */
+		break;
+	case USB_EVT_DEV_STATE:   /**< 16  Device status events */
+		break;
+	case USB_EVT_DEV_ERROR:   /**< 17  Device error events */
+		break;
+	}
+	return ERR_USBD_UNHANDLED;
 
- }
+}
 ErrorCode_t  specialCase(USBD_HANDLE_T hUsb, USB_CORE_DESCS_T *pDesc,USBD_API_INIT_PARAM_T *pUsbParam, UCOM_DATA_T *com, int o)
 {
 	ErrorCode_t ret = LPC_OK;
@@ -493,13 +560,13 @@ ErrorCode_t  specialCase(USBD_HANDLE_T hUsb, USB_CORE_DESCS_T *pDesc,USBD_API_IN
 	UCOM_UartInit(o);
 	USBD_CDC_INIT_PARAM_T cdc_param2;
 	cdc_param2.mem_base = pUsbParam->mem_base;
-		cdc_param2.mem_size = pUsbParam->mem_size;
+	cdc_param2.mem_size = pUsbParam->mem_size;
 	com->txBuf = (uint8_t *) cdc_param2.mem_base;
-			cdc_param2.mem_base += UCOM_BUF_SZ;
-			cdc_param2.mem_size -= UCOM_BUF_SZ;
-			com->rxBuf = (uint8_t *) cdc_param2.mem_base;
-			cdc_param2.mem_base += UCOM_BUF_SZ;
-			cdc_param2.mem_size -= UCOM_BUF_SZ;
+	cdc_param2.mem_base += UCOM_BUF_SZ;
+	cdc_param2.mem_size -= UCOM_BUF_SZ;
+	com->rxBuf = (uint8_t *) cdc_param2.mem_base;
+	cdc_param2.mem_base += UCOM_BUF_SZ;
+	cdc_param2.mem_size -= UCOM_BUF_SZ;
 
 	ret = USBD_API->core->RegisterClassHandler(hUsb,customClassHandler, com);
 
@@ -565,12 +632,12 @@ ErrorCode_t  initCom(USBD_HANDLE_T hUsb, USB_CORE_DESCS_T *pDesc,USBD_API_INIT_P
 	switch(o)
 	{
 	case 0:
-		  cdc_param2.SetLineCode = UCOM_SetLineCode0;
+		cdc_param2.SetLineCode = UCOM_SetLineCode0;
 	case 1:
-	  cdc_param2.SetLineCode = UCOM_SetLineCode1;
+		cdc_param2.SetLineCode = UCOM_SetLineCode1;
 	case 2:
 		cdc_param2.SetLineCode = UCOM_SetLineCode2;
-	break;
+		break;
 	default:
 		break;
 	}
@@ -592,46 +659,46 @@ ErrorCode_t  initCom(USBD_HANDLE_T hUsb, USB_CORE_DESCS_T *pDesc,USBD_API_INIT_P
 
 
 
-			/* Init UART port for bridging */
+		/* Init UART port for bridging */
 
-			/* Set the line coding values as per UART Settings */
-			USB_CDC_CTRL_T * pCDC = (USB_CDC_CTRL_T *) com->hCdc;
-			pCDC->line_coding.dwDTERate = 115200;
-			pCDC->line_coding.bDataBits = 8;
+		/* Set the line coding values as per UART Settings */
+		USB_CDC_CTRL_T * pCDC = (USB_CDC_CTRL_T *) com->hCdc;
+		pCDC->line_coding.dwDTERate = 115200;
+		pCDC->line_coding.bDataBits = 8;
 
 
-			uint32_t	ep_indx = (((	com->inEndpoint & 0x0F) << 1) +1);
-			if (ret == LPC_OK) {
-				ret = USBD_API->core->RegisterEpHandler(hUsb, ep_indx,  com->pInHdlr, com);
-			}
-			ep_indx = ((	com->outEndpoint & 0x0F) << 1);
-			if (ret == LPC_OK) {
-				ret = USBD_API->core->RegisterEpHandler(hUsb, ep_indx,  com->pOutHdlr, com);
-			}
-			USBD_API->hw->EnableEvent(hUsb,com->inEndpoint,USB_EVT_IN,1 );
-			USBD_API->hw->EnableEvent(hUsb,com->inEndpoint,USB_EVT_IN_NAK,1 );
-			USBD_API->hw->EnableEvent(hUsb,com->outEndpoint,USB_EVT_OUT,1 );
-			USBD_API->hw->EnableEvent(hUsb,com->outEndpoint,USB_EVT_OUT_NAK,1 );
-			USBD_API->hw->ResetEP(hUsb,com->inEndpoint);
-			USBD_API->hw->ResetEP(hUsb,com->outEndpoint);
-			USB_ENDPOINT_DESCRIPTOR d;
-			d.bLength=USB_ENDPOINT_DESC_SIZE;
-			d.bDescriptorType=USB_ENDPOINT_DESCRIPTOR_TYPE;
-			d.bEndpointAddress=com->inEndpoint;
+		uint32_t	ep_indx = (((	com->inEndpoint & 0x0F) << 1) +1);
+		if (ret == LPC_OK) {
+			ret = USBD_API->core->RegisterEpHandler(hUsb, ep_indx,  com->pInHdlr, com);
+		}
+		ep_indx = ((	com->outEndpoint & 0x0F) << 1);
+		if (ret == LPC_OK) {
+			ret = USBD_API->core->RegisterEpHandler(hUsb, ep_indx,  com->pOutHdlr, com);
+		}
+		USBD_API->hw->EnableEvent(hUsb,com->inEndpoint,USB_EVT_IN,1 );
+		USBD_API->hw->EnableEvent(hUsb,com->inEndpoint,USB_EVT_IN_NAK,1 );
+		USBD_API->hw->EnableEvent(hUsb,com->outEndpoint,USB_EVT_OUT,1 );
+		USBD_API->hw->EnableEvent(hUsb,com->outEndpoint,USB_EVT_OUT_NAK,1 );
+		USBD_API->hw->ResetEP(hUsb,com->inEndpoint);
+		USBD_API->hw->ResetEP(hUsb,com->outEndpoint);
+		USB_ENDPOINT_DESCRIPTOR d;
+		d.bLength=USB_ENDPOINT_DESC_SIZE;
+		d.bDescriptorType=USB_ENDPOINT_DESCRIPTOR_TYPE;
+		d.bEndpointAddress=com->inEndpoint;
 
-			d.bmAttributes=USB_ENDPOINT_TYPE_BULK;
-			d.bInterval=0;
-			d.wMaxPacketSize=64;
-			USBD_API->hw->ConfigEP(hUsb,&d);
+		d.bmAttributes=USB_ENDPOINT_TYPE_BULK;
+		d.bInterval=0;
+		d.wMaxPacketSize=64;
+		USBD_API->hw->ConfigEP(hUsb,&d);
 
-			d.bLength=USB_ENDPOINT_DESC_SIZE;
-			d.bDescriptorType=USB_ENDPOINT_DESCRIPTOR_TYPE;
-			d.bEndpointAddress=com->outEndpoint;
+		d.bLength=USB_ENDPOINT_DESC_SIZE;
+		d.bDescriptorType=USB_ENDPOINT_DESCRIPTOR_TYPE;
+		d.bEndpointAddress=com->outEndpoint;
 
-			d.bmAttributes=USB_ENDPOINT_TYPE_BULK;
-			d.bInterval=0;
-			d.wMaxPacketSize=64;
-			USBD_API->hw->ConfigEP(hUsb,&d);
+		d.bmAttributes=USB_ENDPOINT_TYPE_BULK;
+		d.bInterval=0;
+		d.wMaxPacketSize=64;
+		USBD_API->hw->ConfigEP(hUsb,&d);
 
 
 
@@ -662,7 +729,7 @@ ErrorCode_t UCOM_init(USBD_HANDLE_T hUsb, USB_CORE_DESCS_T *pDesc, USBD_API_INIT
 	g_uCOM2.can=0;
 	g_uCOM3.can=0;
 	g_uCOM4.can=&gCAN1;
-    g_uCOM5.can=&gCAN2;
+	g_uCOM5.can=&gCAN2;
 
 
 	g_uCOM1.inEndpoint=USB_CDC1_IN_EP;
@@ -704,6 +771,9 @@ ErrorCode_t UCOM_init(USBD_HANDLE_T hUsb, USB_CORE_DESCS_T *pDesc, USBD_API_INIT
 		ret=initCom(hUsb, pDesc, pUsbParam, &g_uCOM5, 4);
 	}
 
+	if (ret == LPC_OK) {
+		ret = USBD_API->core->RegisterClassHandler(hUsb,   &UCOM_ControlHandler, 0);
+	}
 	return ret;
 }
 

@@ -410,7 +410,7 @@ ALIGNED(4) uint8_t USB_FsConfigDescriptor[] = {
 				0x00,								/* bAlternateSetting: no alternate setting */
 				0x02,								/* bNumEndpoints: two endpoints used */
 				CDC_DATA_INTERFACE_CLASS,			/* bInterfaceClass: Data Interface Class */
-				0x00,								/* bInterfaceSubClass: no subclass available */
+				0xFA,								/* bInterfaceSubClass: no subclass available */
 				0x00,								/* bInterfaceProtocol: no protocol used */
 				0x07,								/* iInterface: */
 				/* Endpoint, EP Bulk Out */
@@ -440,7 +440,7 @@ ALIGNED(4) uint8_t USB_FsConfigDescriptor[] = {
 								0x00,								/* bAlternateSetting: no alternate setting */
 								0x02,								/* bNumEndpoints: two endpoints used */
 								CDC_DATA_INTERFACE_CLASS,			/* bInterfaceClass: Data Interface Class */
-								0x00,								/* bInterfaceSubClass: no subclass available */
+								0xFB,								/* bInterfaceSubClass: no subclass available */
 								0x00,								/* bInterfaceProtocol: no protocol used */
 								0x08,								/* iInterface: */
 								/* Endpoint, EP Bulk Out */

@@ -1,7 +1,7 @@
 Based on the USB to UART bridge example
 
 dfu-util -d 0x471:0xdf55 -c 0 -t 2048 -R -D /usr/local/lpcxpresso_7.5.0_254/lpcxpresso/bin/LPCXpressoWIN.enc
-
+dfu-util -d 0x471:0xdf55 -c 0 -t 2048 -R -D  /usr/local/lpcxpresso_7.7.2_379/lpcxpresso/bin/LPCXpressoWIN.enc
 This program is for the lpcexpresso Board. To be connected:
 
 up to two can transceiver:
