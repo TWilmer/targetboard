@@ -1,0 +1,24 @@
+Pinout how to connect JTAG with RPi and use openocd
+
+From the sysfsgpio-raspberrypi.cfg
+
+# Each of the JTAG lines need a gpio number set: tck tms tdi tdo
+# Header pin numbers: 23 22 19 21
+sysfsgpio_jtag_nums 11 25 10 9
+
+# At least one of srst or trst needs to be specified
+# Header pin numbers: TRST - 26, SRST - 18
+sysfsgpio_trst_num 7
+# sysfsgpio_srst_num 24
+
+So I use the same pinout
+
+My colors are:    Board      Pi    Pi
+                  Pins       GPIO  PIN
+Black  GND        9                25
+Grey   TRST       2          7     26
+Orange TDI        3          10    19
+Blue   TMS        4          25    22
+Green  TCK        5          11    23 
+Yellow TDO        7          9     21
+White  SRST       8          24    18

@@ -1,5 +1,9 @@
 Targetboard
 
+Warning: v1 of the board has a bug in the VDD/VSS connection of the CAN drivers.
+
+
+
 this is my hobby project. It supports a lot of features where I want me an my daughter to play with:
 - Simulate a Traffic light
 - USB to Serial communication
