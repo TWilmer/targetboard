@@ -1,0 +1,4 @@
+target extended-remote 192.168.3.3:3333
+monitor reset halt
+monitor flash write_image erase  /tmp/targetboard.bin
+
