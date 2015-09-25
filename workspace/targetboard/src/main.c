@@ -6,7 +6,7 @@
  */
 
 #include "board.h"
-#define TICKRATE_HZ1 (1)       /* 10 ticks per second */
+#define TICKRATE_HZ1 (6)       /* 10 ticks per second */
 
 void SysTick_Handler(void)
 {
@@ -14,16 +14,19 @@ void SysTick_Handler(void)
         Board_LED_Toggle(1);
         Board_LED_Toggle(2);
 }
-static void main2(void);
-void main()
+static int main2(void);
+int  main()
 {
-	main2();
+	return main2();
 }
 __attribute__ ((section(".text")))
-static void main2(void)
+static int main2(void)
 {
-	 SystemCoreClockUpdate();
+
+	Board_SetupClocking();
+		Chip_USB_Init();
 	        Board_Init();
+	        SystemCoreClockUpdate();
 
 	        /* Enable and setup SysTick Timer at a periodic rate */
 	        SysTick_Config(SystemCoreClock / TICKRATE_HZ1);
@@ -32,5 +35,8 @@ static void main2(void)
 	        while (1) {
 	                __WFI();
 	        }
+
+
+	        return 1;
 
 }
