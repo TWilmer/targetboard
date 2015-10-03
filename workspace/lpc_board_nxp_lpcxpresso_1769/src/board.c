@@ -39,6 +39,9 @@
  ****************************************************************************/
 #define BUTTONS_BUTTON1_GPIO_PORT_NUM           2
 #define BUTTONS_BUTTON1_GPIO_BIT_NUM            10
+#define BUTTONS_BUTTON2_GPIO_PORT_NUM           0
+#define BUTTONS_BUTTON2_GPIO_BIT_NUM            24
+
 
 #define LED0_GPIO_PORT_NUM                      0
 #define LED0_GPIO_BIT_NUM                       23
@@ -46,6 +49,9 @@
 #define LED1_GPIO_BIT_NUM                       25
 #define LED2_GPIO_PORT_NUM                      3
 #define LED2_GPIO_BIT_NUM                       26
+
+#define LED3_GPIO_PORT_NUM                      1
+#define LED3_GPIO_BIT_NUM                       18  // IR LED
 
 /*****************************************************************************
  * Public types/enumerations/variables
@@ -67,6 +73,7 @@ static void Board_LED_Init(void)
 	Chip_GPIO_WriteDirBit(LPC_GPIO, LED0_GPIO_PORT_NUM, LED0_GPIO_BIT_NUM, true);
 	Chip_GPIO_WriteDirBit(LPC_GPIO, LED1_GPIO_PORT_NUM, LED1_GPIO_BIT_NUM, true);
 	Chip_GPIO_WriteDirBit(LPC_GPIO, LED2_GPIO_PORT_NUM, LED2_GPIO_BIT_NUM, true);
+	Chip_GPIO_WriteDirBit(LPC_GPIO, LED3_GPIO_PORT_NUM, LED3_GPIO_BIT_NUM, true);
 
 }
 
@@ -138,6 +145,9 @@ void Board_LED_Set(uint8_t LEDNumber, bool On)
 	if (LEDNumber == 2) {
 			Chip_GPIO_WritePortBit(LPC_GPIO, LED2_GPIO_PORT_NUM, LED2_GPIO_BIT_NUM, On);
 		}
+	if (LEDNumber == 3) {
+			Chip_GPIO_WritePortBit(LPC_GPIO, LED3_GPIO_PORT_NUM, LED3_GPIO_BIT_NUM, On);
+		}
 }
 
 /* Returns the current state of a board LED */
@@ -155,6 +165,10 @@ bool Board_LED_Test(uint8_t LEDNumber)
 		state = Chip_GPIO_ReadPortBit(LPC_GPIO, LED2_GPIO_PORT_NUM, LED2_GPIO_BIT_NUM);
 	}
 
+	if (LEDNumber == 3) {
+		state = Chip_GPIO_ReadPortBit(LPC_GPIO, LED3_GPIO_PORT_NUM, LED3_GPIO_BIT_NUM);
+	}
+
 	return state;
 }
 
@@ -167,6 +181,9 @@ void Board_LED_Toggle(uint8_t LEDNumber)
 		Board_LED_Set(LEDNumber, !Board_LED_Test(LEDNumber));
 	}
 	if (LEDNumber == 2) {
+		Board_LED_Set(LEDNumber, !Board_LED_Test(LEDNumber));
+	}
+	if (LEDNumber == 3) {
 		Board_LED_Set(LEDNumber, !Board_LED_Test(LEDNumber));
 	}
 }
@@ -306,6 +323,7 @@ void Board_I2C_Init(I2C_ID_T id)
 void Board_Buttons_Init(void)
 {
 	Chip_GPIO_WriteDirBit(LPC_GPIO, BUTTONS_BUTTON1_GPIO_PORT_NUM, BUTTONS_BUTTON1_GPIO_BIT_NUM, false);
+	Chip_GPIO_WriteDirBit(LPC_GPIO, BUTTONS_BUTTON2_GPIO_PORT_NUM, BUTTONS_BUTTON2_GPIO_BIT_NUM, false);
 }
 
 uint32_t Buttons_GetStatus(void)
@@ -314,6 +332,10 @@ uint32_t Buttons_GetStatus(void)
 	if (Chip_GPIO_ReadPortBit(LPC_GPIO, BUTTONS_BUTTON1_GPIO_PORT_NUM, BUTTONS_BUTTON1_GPIO_BIT_NUM) == 0x00) {
 		ret |= BUTTONS_BUTTON1;
 	}
+	if (Chip_GPIO_ReadPortBit(LPC_GPIO, BUTTONS_BUTTON2_GPIO_PORT_NUM, BUTTONS_BUTTON2_GPIO_BIT_NUM) == 0x00) {
+		ret |= BUTTONS_BUTTON2;
+	}
+
 	return ret;
 }
 
