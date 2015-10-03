@@ -1,6 +1,18 @@
 Targetboard
 
-Warning: v1 of the board has a bug in the VDD/VSS connection of the CAN drivers.
+Warning1: v1 of the board has a bug in the VDD/VSS connection of the CAN drivers. To fix the board lift the power supply pins of the can transceiver chips
+Warning2: v1 of the board has a bug in IR receiver footprint pin 1 and 3 are mixed up
+Warning3: v1 of the board has the USB connector too near to the Serial Port
+
+
+What works:
+- IR sender
+- Leds
+- Button
+- Serial Port 3
+- WIFI port (no SW support yet)
+- JTAG, I'm using a recent openocd on RPi B+
+
 
 
 
