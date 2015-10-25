@@ -69,6 +69,28 @@ STATIC const PINMUX_GRP_T pinmuxing[] = {
 		{0,  2,   IOCON_MODE_INACT | IOCON_FUNC1},	/* TX0 */
 	    {0,  3,   IOCON_MODE_INACT | IOCON_FUNC1},	/* RX0 */
 
+
+		{2,  4,   IOCON_MODE_INACT | IOCON_FUNC0},	/* PWM1 */
+		{1,  9,   IOCON_MODE_INACT | IOCON_FUNC0},	/* CM1A */
+		{1,  8,   IOCON_MODE_INACT | IOCON_FUNC0},	/* CM1B */
+
+
+		{2,  5,   IOCON_MODE_INACT | IOCON_FUNC0},	/* PWM2 */
+		{1,  1,   IOCON_MODE_INACT | IOCON_FUNC0},	/* CM2A */
+		{1,  0,   IOCON_MODE_INACT | IOCON_FUNC0},	/* CM2B */
+
+
+		{1,  21,   IOCON_MODE_INACT | IOCON_FUNC0},	/* PWM3 */
+		{0,  9,   IOCON_MODE_INACT | IOCON_FUNC0},	/* CM3A */
+		{1,  10,   IOCON_MODE_INACT | IOCON_FUNC0},	/* CM3B */
+
+		{1,  23,   IOCON_MODE_INACT | IOCON_FUNC0},	/* PWM4 */
+		{1,  14,   IOCON_MODE_INACT | IOCON_FUNC0},	/* CM4A */
+		{0,  8,   IOCON_MODE_INACT | IOCON_FUNC0},	/* CM4B */
+
+		{1,  4,   IOCON_MODE_INACT | IOCON_FUNC0},	/* STBY */
+
+
 };
 
 /*****************************************************************************

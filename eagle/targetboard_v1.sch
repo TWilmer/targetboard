@@ -3750,7 +3750,7 @@
 <segment>
 <pinref part="IC2" gate="G$1" pin="P2.8/CAN_TX2/TXD2"/>
 <wire x1="55.245" y1="13.97" x2="45.085" y2="13.97" width="0.1524" layer="91"/>
-<label x="46.99" y="13.97" size="1.778" layer="95"/>
+<label x="41.91" y="13.97" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="CAN2_RX" class="0">
@@ -3761,7 +3761,7 @@
 </segment>
 <segment>
 <wire x1="55.88" y1="19.05" x2="55.245" y2="19.05" width="0.1524" layer="91"/>
-<label x="46.99" y="19.685" size="1.778" layer="95"/>
+<label x="39.37" y="19.685" size="1.778" layer="95"/>
 <pinref part="IC2" gate="G$1" pin="P2.7/CAN_RX2/RTS1"/>
 <wire x1="55.245" y1="19.05" x2="44.45" y2="19.05" width="0.1524" layer="91"/>
 <junction x="55.245" y="19.05"/>
@@ -4485,7 +4485,7 @@
 <segment>
 <pinref part="IC2" gate="G$1" pin="P2.5/PWM1.6/DTR1/TRACEDATA0"/>
 <wire x1="55.245" y1="24.13" x2="45.085" y2="24.13" width="0.1524" layer="91"/>
-<label x="45.72" y="24.765" size="1.778" layer="95"/>
+<label x="40.64" y="24.765" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="CM2B" class="0">
@@ -4640,7 +4640,7 @@
 <segment>
 <pinref part="IC2" gate="G$1" pin="P2.6/PCAP1.0/RI1/TRACECLK"/>
 <wire x1="55.245" y1="21.59" x2="44.45" y2="21.59" width="0.1524" layer="91"/>
-<label x="46.355" y="21.59" size="1.778" layer="95"/>
+<label x="38.735" y="21.59" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="CAN2_REF" class="0">
@@ -4653,7 +4653,7 @@
 <pinref part="IC2" gate="G$1" pin="P2.3/PWM1.4/DCD1/TRACEDATA2"/>
 <wire x1="55.245" y1="29.21" x2="43.815" y2="29.21" width="0.1524" layer="91"/>
 <wire x1="43.815" y1="29.21" x2="43.815" y2="28.575" width="0.1524" layer="91"/>
-<label x="45.72" y="29.21" size="1.778" layer="95"/>
+<label x="40.64" y="29.21" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="N$2" class="0">

@@ -109,7 +109,7 @@ ALIGNED(4) uint8_t USB_FsConfigDescriptor[] = {
 
 				0
 		),
-		0x0A,									/* bNumInterfaces */
+		0x08,									/* bNumInterfaces */
 		0x01,									/* bConfigurationValue */
 		0x00,									/* iConfiguration */
 		USB_CONFIG_BUS_POWERED,		   		    /* bmAttributes  */
@@ -464,6 +464,8 @@ ALIGNED(4) uint8_t USB_FsConfigDescriptor[] = {
 		/* Terminator */
 		0									/* bLength */
 };
+// TODO something is still wrong with the decriptor table
+
 
 /**
  * USB String Descriptor (optional)
@@ -546,5 +548,22 @@ ALIGNED(4) const uint8_t USB_StringDescriptor[] = {
 		'4', 0,
 
 
+		/* Index 0x08: Interface 1, Alternate Setting 0 */
+		( 5 * 2 + 2),						/* bLength (4 Char + Type + lenght) */
+		USB_STRING_DESCRIPTOR_TYPE,			/* bDescriptorType */
+		'V', 0,
+		'C', 0,
+		'O', 0,
+		'M', 0,
+		'5', 0,
+
+		/* Index 0x08: Interface 1, Alternate Setting 0 */
+		( 5 * 2 + 2),						/* bLength (4 Char + Type + lenght) */
+		USB_STRING_DESCRIPTOR_TYPE,			/* bDescriptorType */
+		'V', 0,
+		'C', 0,
+		'O', 0,
+		'M', 0,
+		'5', 0,
 
 };

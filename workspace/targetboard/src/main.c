@@ -7,7 +7,7 @@
 
 #include "board.h"
 #define TICKRATE_HZ1 (6)       /* 10 ticks per second */
-
+#include "motor.h"
 void SysTick_Handler(void)
 {
 
@@ -225,6 +225,7 @@ int main(void)
 	Board_Init();
 	Board_SetupClocking();
 	Chip_USB_Init();
+	Motor_Init();
 
 	SystemCoreClockUpdate();
 
@@ -235,10 +236,6 @@ int main(void)
 	usb_pin_clk_init();
 
 
-
-
-	DEBUGSTR("Test");
-	while(1);
 
 	/* initialize call back structures */
 	memset((void *) &usb_param, 0, sizeof(USBD_API_INIT_PARAM_T));
@@ -320,9 +317,11 @@ int main(void)
 		case 0x4300C39D:
 			count=1000000;
 			Board_LED_Set(0, 1);
+			Motor_All(MOTOR_LEFT);
 			break;
 		case 1124123539:
 		case 100713363:
+			Motor_All(MOTOR_RIGHT);
 			Board_LED_Set(1, 1);
 			count=1000000;
 			break;
@@ -337,6 +336,7 @@ int main(void)
 		{
 			count--;
 		}else{
+		//	Motor_All(MOTOR_STOP);
 			Board_LED_Set(0, 0);
 			Board_LED_Set(1, 0);
 			Board_LED_Set(2, 0);
